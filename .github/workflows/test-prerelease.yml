@@ -1,12 +1,10 @@
 name: Prerelease JS Package
 
 on:
-  issue_comment:
-    types: [created]
+  workflow_dispatch:
 
 jobs:
   prerelease:
-    if: ${{ github.event.issue.pull_request != null && contains(github.event.comment.body, '/prerelease') }}
     runs-on: ubuntu-latest
 
     steps:
@@ -50,5 +48,5 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: prNumber,
-              body: `Prerelease version \`${newVersion}\` has been published.`
+              body: `Prerelease version \`${newVersion}\` has been published by the GitHub bot.`
             });
