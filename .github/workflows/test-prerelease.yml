@@ -1,17 +1,20 @@
 name: Prerelease JS Package
 
 on:
-  issue_comment:
-    types: [created]
+  push:
+    branches:
+      - "**" # Trigger on pushes to all branches
+  workflow_dispatch:
 
 jobs:
   prerelease:
-    if: ${{ github.event.issue.pull_request != null && contains(github.event.comment.body, '/prerelease') }}
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -37,3 +40,16 @@ jobs:
         run: yarn publish --tag alpha
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Comment on Pull Request
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const prNumber = context.payload.issue.number;
+            const newVersion = process.env.NEW_VERSION;
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: `Prerelease version \`${newVersion}\` has been published by the GitHub bot.`
+            });
