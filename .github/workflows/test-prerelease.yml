@@ -39,3 +39,16 @@ jobs:
         run: yarn publish --tag alpha
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Comment on Pull Request
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const prNumber = context.payload.issue.number;
+            const newVersion = process.env.NEW_VERSION;
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: `Prerelease version \`${newVersion}\` has been published.`
+            });
