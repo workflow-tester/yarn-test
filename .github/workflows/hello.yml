@@ -2,6 +2,9 @@ name: Manual Hello World
 
 on:
   workflow_dispatch: # Allows manual triggering of the workflow
+  push:
+    branches:
+      - feature/4
 
 jobs:
   say-hello:
