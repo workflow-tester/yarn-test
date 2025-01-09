@@ -1,0 +1,11 @@
+name: Manual Hello World
+
+on:
+  workflow_dispatch: # Allows manual triggering of the workflow
+
+jobs:
+  say-hello:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log Hello World
+        run: echo "Hello, World!"
