@@ -36,4 +36,4 @@ jobs:
       - name: Publish Prerelease Package
         run: yarn publish --tag alpha
         env:
-          NODE_AUTH_TOKEN: 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
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
