@@ -1,0 +1,39 @@
+name: Prerelease JS Package
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  prerelease:
+    if: github.event.issue.pull_request && contains(github.event.comment.body, '/prerelease')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          registry-url: "https://registry.npmjs.org/"
+
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Get Current Version
+        id: version
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
+
+      - name: Generate Unique Prerelease Version
+        run: |
+          BASE_VERSION=$(node -p "require('./package.json').version.replace(/-.*/, '')")
+          UNIQUE_VERSION="${BASE_VERSION}-alpha.${{ github.run_number }}"
+          yarn version --new-version "$UNIQUE_VERSION" --no-git-tag-version
+          echo "NEW_VERSION=$UNIQUE_VERSION" >> $GITHUB_ENV
+
+      - name: Publish Prerelease Package
+        run: yarn publish --tag alpha
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
